@@ -1,0 +1,16 @@
+# Fichiers compilés
+*.class
+out/
+bin/
+
+# Fichiers de configuration IDE (IntelliJ / Eclipse)
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+.vscode/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
