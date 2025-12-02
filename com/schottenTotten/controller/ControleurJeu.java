@@ -130,7 +130,7 @@ public class ControleurJeu {
             if (estCoupValide(p, idxBorne)) {
                 Carte c = p.jouerCarte(idxCarte);
                 // On ajoute la carte sur la borne (true si joueur 1, false si joueur 2)
-                bornes.get(idxBorne).ajouterCarte(c, p == j1);
+                bornes.get(idxBorne).ajouterCarte(p, c, p == j1);
 
                 // Pioche d'une nouvelle carte
                 Carte nouvelleCarte = tirerCarte();

@@ -2,7 +2,7 @@ package com.schottenTotten.model;
 
 import com.schottenTotten.model.Couleur;
 
-public class Carte {
+public class Carte implements Comparable<Carte> {
 
     private final int valeur;
     private final Couleur couleur;
