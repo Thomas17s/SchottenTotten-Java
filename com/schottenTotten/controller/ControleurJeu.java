@@ -10,7 +10,6 @@ import com.schottenTotten.ai.IAAleatoire;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;    
 import java.util.List;
 
 public class ControleurJeu {
@@ -33,7 +32,6 @@ public class ControleurJeu {
     }
 
     // Crée et mélange le paquet de 54 cartes (6 couleurs et 9 valeurs).
-    
     private List<Carte> creerPioche() {
         List<Carte> nouvellePioche = new ArrayList<>();
         for (Couleur c : Couleur.values()) {
@@ -46,7 +44,6 @@ public class ControleurJeu {
     }
 
     // Méthode principale qui lance la boucle de jeu.
-
     public void lancerPartie() {
         vue.afficherMessage("Bienvenue dans Schotten-Totten !");
 
@@ -112,7 +109,8 @@ public class ControleurJeu {
                     idxCarte = action[0];
                     idxBorne = action[1];
                     essais++;
-                } while (!estCoupValide(p, idxBorne) && essais < 100);
+                    // Correction : Utilisation de verifierPlace au lieu de estCoupValide
+                } while ((idxBorne < 0 || idxBorne >= 9 || !verifierPlace(p, bornes.get(idxBorne))) && essais < 100);
 
                 if (essais >= 100) {
                     vue.afficherMessage("L'IA passe son tour (blocage).");
@@ -126,10 +124,12 @@ public class ControleurJeu {
                 idxBorne = vue.demanderEntier("Sur quelle borne (1-9)", 1, 9) - 1;
             }
 
-            // Exécution du coup
-            if (estCoupValide(p, idxBorne)) {
+            // Exécution du coup (Correction : utilisation de verifierPlace)
+            if (idxBorne >= 0 && idxBorne < 9 && verifierPlace(p, bornes.get(idxBorne))) {
                 Carte c = p.jouerCarte(idxCarte);
+                
                 // On ajoute la carte sur la borne (true si joueur 1, false si joueur 2)
+                // Correction : Ajout du paramètre 'p' manquant
                 bornes.get(idxBorne).ajouterCarte(p, c, p == j1);
 
                 // Pioche d'une nouvelle carte
@@ -144,18 +144,10 @@ public class ControleurJeu {
             }
         }
     }
-
-    private boolean estCoupValide(Joueur p, int idxBorne) {
-        if (idxBorne < 0 || idxBorne >= 9) return false;
-        Borne b = bornes.get(idxBorne);
-        // On ne peut pas jouer sur une borne qui a déjà un propriétaire
-        if (b.getProprietaire() != null) return false;
-        // On vérifie s'il y a de la place du côté du joueur
-        return b.ajouterCarte(null, p == j1); 
-
-    }  
     
+    // Cette méthode remplace "estCoupValide" qui causait l'erreur
     private boolean verifierPlace(Joueur p, Borne b) {
+        if (b.getProprietaire() != null) return false;
         List<Carte> cote = (p == j1) ? b.getCoteJoueur1() : b.getCoteJoueur2();
         return cote.size() < 3;
     }
