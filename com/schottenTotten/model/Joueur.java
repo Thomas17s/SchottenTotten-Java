@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Joueur{
-    protected Sting nom;
+    protected String nom;
     protected List<Carte> main;
     protected boolean estIA;
 

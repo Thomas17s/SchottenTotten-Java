@@ -13,6 +13,4 @@ public enum Couleur{
         return name();
 
     }
-
-
 }

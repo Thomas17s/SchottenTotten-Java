@@ -1,24 +1,23 @@
 package com.schottenTotten.model;
 
-import com.schottenTotten.model.Couleur;
+public abstract class Carte implements Comparable<Carte> {
+    
+    // Méthode abstraite : chaque enfant devra dire s'il est une tactique
+    public abstract boolean estTactique();
 
-public class Carte implements Comparable<Carte> {
-
-    private final int valeur;
-    private final Couleur couleur;
-
-    public Carte(Couleur couleur, int valeur){
-        this.couleur = couleur;
-        this.valeur = valeur;
-    }
-    public Couleur getCouleur(){return couleur;}
-    public int getValeur(){return valeur;}
+    public abstract Couleur getCouleur();
+    public abstract int getValeur();
+    
     @Override
-    public String toString(){
-        return couleur.name().substring(0, 1) + valeur;
-    } 
+    public abstract String toString();
+
     @Override
     public int compareTo(Carte autre) {
-        return Integer.compare(this.valeur, autre.valeur);
+        // Les cartes Tactiques sont mises à la fin de la main
+        if (this.estTactique() && !autre.estTactique()) return 1;
+        if (!this.estTactique() && autre.estTactique()) return -1;
+        
+        // Si même type, on trie par valeur
+        return Integer.compare(this.getValeur(), autre.getValeur());
     }
 }
