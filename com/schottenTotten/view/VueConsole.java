@@ -30,58 +30,57 @@ public class VueConsole {
     }
 
     public void afficherPlateau(List<Borne> bornes, Joueur j1, Joueur j2) {
-        System.out.println("\n" + "=".repeat(78));
-        System.out.println("                  PLATEAU DE JEU SCHOTTEN-TOTTEN");
+        System.out.println("\n" + "=".repeat(80));
+        System.out.println("                   PLATEAU DE JEU SCHOTTEN-TOTTEN");
         System.out.println("   Légende : " + ANSI_CYAN + "(? 1 ?)" + RESET + " = Colin-Maillard | " + 
                            ANSI_PURPLE + "(4c 1)" + RESET + " = Combat de Boue");
-        System.out.println("=".repeat(78));
+        System.out.println("=".repeat(80));
         
         // En-tête
-        System.out.println(String.format("%-30s | %s | %30s", j1.getNom(), "BORNES  ", j2.getNom()));
-        System.out.println("-".repeat(78));
+        System.out.println(String.format("%-30s | %s | %30s", j1.getNom(), " BORNES  ", j2.getNom()));
+        System.out.println("-".repeat(80));
 
         for (Borne borne : bornes) {
             StringBuilder sb = new StringBuilder();
            
             // 1. Préparer le texte de gauche (J1)
             String texteJ1 = formaterCote(borne.getCoteJoueur1());
-            // 2. L'aligner proprement à GAUCHE sur 30 caractères
             sb.append(alignerGauche(texteJ1, 30));
            
-            // 3. Préparer la borne centrale avec les indicateurs visuels
+            // 2. Préparer la borne centrale (Largeur fixe de 9 caractères visibles)
             String symbole;
             String num = String.valueOf(borne.getId() + 1);
 
             if (borne.getProprietaire() == j1) {
-                symbole = ANSI_GREEN + "<  J1   " + RESET;
+                // Largeur 9 : " <  J1   "
+                symbole = ANSI_GREEN + " <  J1   " + RESET;
             } 
             else if (borne.getProprietaire() == j2) {
-                symbole = ANSI_RED + "   J2  >" + RESET;
+                // Largeur 9 : "   J2  > "
+                symbole = ANSI_RED + "   J2  > " + RESET;
             } 
             else {
-                // Affichage spécial selon le mode de la borne
                 if (borne.isColinMaillard()) {
-                    // Mode Somme (Cyan)
-                    symbole = ANSI_CYAN + "(? " + num + " ?)" + RESET;
+                    // Largeur 9 : "(?  1  ?)"
+                    symbole = ANSI_CYAN + "(?  " + num + "  ?)" + RESET;
                 } else if (borne.getCapaciteMax() == 4) {
-                    // Mode Boue (Violet)
-                    symbole = ANSI_PURPLE + "(4c " + num + ")" + RESET;
+                    // Largeur 9 : "( 4c 1  )"
+                    symbole = ANSI_PURPLE + "( 4c " + num + "  )" + RESET;
                 } else {
-                    // Mode Normal (Jaune)
-                    symbole = ANSI_YELLOW + "(  " + num + "  )" + RESET;
+                    // Largeur 9 : "(   1   )"
+                    symbole = ANSI_YELLOW + "(   " + num + "   )" + RESET;
                 }
             }
            
             sb.append(" | ").append(symbole).append(" | ");
 
-            // 4. Préparer le texte de droite (J2)
+            // 3. Préparer le texte de droite (J2)
             String texteJ2 = formaterCote(borne.getCoteJoueur2());
-            // 5. L'aligner proprement à DROITE sur 30 caractères
             sb.append(alignerDroite(texteJ2, 30));
            
             System.out.println(sb.toString());
         }
-        System.out.println("=".repeat(78));
+        System.out.println("=".repeat(80));
     }
 
     // --- MÉTHODES D'ALIGNEMENT ---
@@ -120,9 +119,8 @@ public class VueConsole {
     private String coloriser(Carte carte) {
         if (carte == null) return "[?]";
         
-        // Si c'est une carte tactique sans couleur définie (ex: Chasseur de tête, ou Ruse non jouée)
+        // Si carte tactique sans couleur (Ruse non jouée ou spéciale)
         if (carte.getCouleur() == null) {
-            // On affiche en GRIS/BLANC pour les cartes spéciales
             return ANSI_WHITE + "[" + carte.toString() + "]" + RESET;
         }
         
@@ -133,7 +131,7 @@ public class VueConsole {
             case Bleu:   code = ANSI_BLUE; break;
             case Jaune:  code = ANSI_YELLOW; break;
             case Violet: code = ANSI_PURPLE; break;
-            case Marron: code = ANSI_CYAN; break; // Cyan pour marron (plus visible)
+            case Marron: code = ANSI_CYAN; break; 
             default:     code = RESET;
         }
         return code + "[" + carte.toString() + "]" + RESET;
