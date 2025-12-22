@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class VueConsole {
-    // Codes couleurs
+    // Codes couleurs ANSI
     public static final String RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[91m";
     public static final String ANSI_GREEN = "\u001B[92m";
@@ -18,8 +18,9 @@ public class VueConsole {
     public static final String ANSI_BLUE = "\u001B[94m";
     public static final String ANSI_PURPLE = "\u001B[95m";
     public static final String ANSI_CYAN = "\u001B[96m";
+    public static final String ANSI_WHITE = "\u001B[97m";
 
-    // Pattern pour supprimer les codes couleurs invisibles
+    // Pattern pour supprimer les codes couleurs invisibles (pour l'alignement)
     private static final Pattern ANSI_PATTERN = Pattern.compile("(?:\u001B|\033)\\[[;\\d]*m");
 
     private Scanner scanner;
@@ -29,51 +30,69 @@ public class VueConsole {
     }
 
     public void afficherPlateau(List<Borne> bornes, Joueur j1, Joueur j2) {
-        System.out.println("\n" + "=".repeat(70));
+        System.out.println("\n" + "=".repeat(78));
         System.out.println("                  PLATEAU DE JEU SCHOTTEN-TOTTEN");
-        System.out.println("=".repeat(70));
+        System.out.println("   Légende : " + ANSI_CYAN + "(? 1 ?)" + RESET + " = Colin-Maillard | " + 
+                           ANSI_PURPLE + "(4c 1)" + RESET + " = Combat de Boue");
+        System.out.println("=".repeat(78));
         
         // En-tête
-        System.out.println(String.format("%-30s | %s | %30s", j1.getNom(), "BORNES", j2.getNom()));
-        System.out.println("-".repeat(70));
+        System.out.println(String.format("%-30s | %s | %30s", j1.getNom(), "BORNES  ", j2.getNom()));
+        System.out.println("-".repeat(78));
 
         for (Borne borne : bornes) {
             StringBuilder sb = new StringBuilder();
            
-            // Préparer le texte de gauche (J1)
+            // 1. Préparer le texte de gauche (J1)
             String texteJ1 = formaterCote(borne.getCoteJoueur1());
-            // L'aligner proprement à GAUCHE sur 30 caractères
+            // 2. L'aligner proprement à GAUCHE sur 30 caractères
             sb.append(alignerGauche(texteJ1, 30));
            
-            // Préparer la borne centrale
+            // 3. Préparer la borne centrale avec les indicateurs visuels
             String symbole;
-            if (borne.getProprietaire() == j1) symbole = ANSI_GREEN + "< J1 " + RESET;
-            else if (borne.getProprietaire() == j2) symbole = ANSI_RED + " J2 >" + RESET;
-            else symbole = ANSI_YELLOW + "( " + (borne.getId() + 1) + " )" + RESET;
+            String num = String.valueOf(borne.getId() + 1);
+
+            if (borne.getProprietaire() == j1) {
+                symbole = ANSI_GREEN + "<  J1   " + RESET;
+            } 
+            else if (borne.getProprietaire() == j2) {
+                symbole = ANSI_RED + "   J2  >" + RESET;
+            } 
+            else {
+                // Affichage spécial selon le mode de la borne
+                if (borne.isColinMaillard()) {
+                    // Mode Somme (Cyan)
+                    symbole = ANSI_CYAN + "(? " + num + " ?)" + RESET;
+                } else if (borne.getCapaciteMax() == 4) {
+                    // Mode Boue (Violet)
+                    symbole = ANSI_PURPLE + "(4c " + num + ")" + RESET;
+                } else {
+                    // Mode Normal (Jaune)
+                    symbole = ANSI_YELLOW + "(  " + num + "  )" + RESET;
+                }
+            }
            
             sb.append(" | ").append(symbole).append(" | ");
 
-            // Préparer le texte de droite (J2)
+            // 4. Préparer le texte de droite (J2)
             String texteJ2 = formaterCote(borne.getCoteJoueur2());
-            // L'aligner proprement à DROITE sur 30 caractères
+            // 5. L'aligner proprement à DROITE sur 30 caractères
             sb.append(alignerDroite(texteJ2, 30));
            
             System.out.println(sb.toString());
         }
-        System.out.println("=".repeat(70));
+        System.out.println("=".repeat(78));
     }
 
-    // Ajoute des espaces APRES le texte pour qu'il fasse 'largeur' caractères visuels.
+    // --- MÉTHODES D'ALIGNEMENT ---
 
     private String alignerGauche(String texte, int largeur) {
         int longueurReelle = getLongueurVisible(texte);
         int espacesAajouter = largeur - longueurReelle;
         
-        if (espacesAajouter <= 0) return texte; // Si ça dépasse, on ne coupe pas
+        if (espacesAajouter <= 0) return texte; 
         return texte + " ".repeat(espacesAajouter);
     }
-
-    // Ajoute des espaces avant le texte pour qu'il fasse 'largeur' caractères visuels.
 
     private String alignerDroite(String texte, int largeur) {
         int longueurReelle = getLongueurVisible(texte);
@@ -83,12 +102,12 @@ public class VueConsole {
         return " ".repeat(espacesAajouter) + texte;
     }
 
-    // Compte les caractères visibles (ignore les codes couleurs).
-
     private int getLongueurVisible(String str) {
         if (str == null) return 0;
         return ANSI_PATTERN.matcher(str).replaceAll("").length();
     }
+
+    // --- FORMATAGE ET COULEURS ---
 
     private String formaterCote(List<Carte> cartes) {
         StringBuilder sb = new StringBuilder();
@@ -99,15 +118,23 @@ public class VueConsole {
     }
 
     private String coloriser(Carte carte) {
-        if (carte == null || carte.getCouleur() == null) return "[?]";
+        if (carte == null) return "[?]";
+        
+        // Si c'est une carte tactique sans couleur définie (ex: Chasseur de tête, ou Ruse non jouée)
+        if (carte.getCouleur() == null) {
+            // On affiche en GRIS/BLANC pour les cartes spéciales
+            return ANSI_WHITE + "[" + carte.toString() + "]" + RESET;
+        }
+        
         String code = RESET;
         switch (carte.getCouleur()) {
-            case Rouge: code = ANSI_RED; break;
-            case Vert: code = ANSI_GREEN; break;
-            case Bleu: code = ANSI_BLUE; break;
-            case Jaune: code = ANSI_YELLOW; break;
+            case Rouge:  code = ANSI_RED; break;
+            case Vert:   code = ANSI_GREEN; break;
+            case Bleu:   code = ANSI_BLUE; break;
+            case Jaune:  code = ANSI_YELLOW; break;
             case Violet: code = ANSI_PURPLE; break;
-            case Marron: code = ANSI_CYAN; break;
+            case Marron: code = ANSI_CYAN; break; // Cyan pour marron (plus visible)
+            default:     code = RESET;
         }
         return code + "[" + carte.toString() + "]" + RESET;
     }
