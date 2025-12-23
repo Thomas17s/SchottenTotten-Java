@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class VueConsole {
-    // Codes couleurs ANSI
+    // codes couleurs ansi
     public static final String RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[91m";
     public static final String ANSI_GREEN = "\u001B[92m";
@@ -20,7 +20,7 @@ public class VueConsole {
     public static final String ANSI_CYAN = "\u001B[96m";
     public static final String ANSI_WHITE = "\u001B[97m";
 
-    // Pattern pour supprimer les codes couleurs invisibles (pour l'alignement)
+    // pattern pour retirer les codes couleurs invisibles
     private static final Pattern ANSI_PATTERN = Pattern.compile("(?:\u001B|\033)\\[[;\\d]*m");
 
     private Scanner scanner;
@@ -36,45 +36,45 @@ public class VueConsole {
                            ANSI_PURPLE + "(4c 1)" + RESET + " = Combat de Boue");
         System.out.println("=".repeat(80));
         
-        // En-tête
+        // affichage de l en tete
         System.out.println(String.format("%-30s | %s | %30s", j1.getNom(), " BORNES  ", j2.getNom()));
         System.out.println("-".repeat(80));
 
         for (Borne borne : bornes) {
             StringBuilder sb = new StringBuilder();
            
-            // 1. Préparer le texte de gauche (J1)
+            // preparation du cote gauche du joueur 1
             String texteJ1 = formaterCote(borne.getCoteJoueur1());
             sb.append(alignerGauche(texteJ1, 30));
            
-            // 2. Préparer la borne centrale (Largeur fixe de 9 caractères visibles)
+            // preparation de la borne centrale
             String symbole;
             String num = String.valueOf(borne.getId() + 1);
 
             if (borne.getProprietaire() == j1) {
-                // Largeur 9 : " <  J1   "
+                // borne gagnee par le joueur 1
                 symbole = ANSI_GREEN + " <  J1   " + RESET;
             } 
             else if (borne.getProprietaire() == j2) {
-                // Largeur 9 : "   J2  > "
+                // borne gagnee par le joueur 2
                 symbole = ANSI_RED + "   J2  > " + RESET;
             } 
             else {
                 if (borne.isColinMaillard()) {
-                    // Largeur 9 : "(?  1  ?)"
+                    // mode colin maillard actif
                     symbole = ANSI_CYAN + "(?  " + num + "  ?)" + RESET;
                 } else if (borne.getCapaciteMax() == 4) {
-                    // Largeur 9 : "( 4c 1  )"
+                    // mode combat de boue actif
                     symbole = ANSI_PURPLE + "( 4c " + num + "  )" + RESET;
                 } else {
-                    // Largeur 9 : "(   1   )"
+                    // borne classique
                     symbole = ANSI_YELLOW + "(   " + num + "   )" + RESET;
                 }
             }
            
             sb.append(" | ").append(symbole).append(" | ");
 
-            // 3. Préparer le texte de droite (J2)
+            // preparation du cote droit du joueur 2
             String texteJ2 = formaterCote(borne.getCoteJoueur2());
             sb.append(alignerDroite(texteJ2, 30));
            
@@ -83,7 +83,7 @@ public class VueConsole {
         System.out.println("=".repeat(80));
     }
 
-    // --- MÉTHODES D'ALIGNEMENT ---
+    // methodes d alignement
 
     private String alignerGauche(String texte, int largeur) {
         int longueurReelle = getLongueurVisible(texte);
@@ -106,7 +106,7 @@ public class VueConsole {
         return ANSI_PATTERN.matcher(str).replaceAll("").length();
     }
 
-    // --- FORMATAGE ET COULEURS ---
+    // formatage et couleurs
 
     private String formaterCote(List<Carte> cartes) {
         StringBuilder sb = new StringBuilder();
@@ -119,7 +119,7 @@ public class VueConsole {
     private String coloriser(Carte carte) {
         if (carte == null) return "[?]";
         
-        // Si carte tactique sans couleur (Ruse non jouée ou spéciale)
+        // carte tactique sans couleur
         if (carte.getCouleur() == null) {
             return ANSI_WHITE + "[" + carte.toString() + "]" + RESET;
         }
