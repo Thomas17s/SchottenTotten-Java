@@ -3,18 +3,15 @@ package com.schottenTotten;
 import com.schottenTotten.controller.ControleurJeu;
 import com.schottenTotten.controller.JeuFactory;
 
-/**
- * Classe principale contenant le point d'entrée (main).
- * Elle délègue immédiatement la création et le lancement du jeu au contrôleur.
- */
+
+// classe principale avec le point d entree du programme elle cree le jeu et lance la partie
 public class SchottenTotten {
 
     public static void main(String[] args) {
-        // 1. On utilise la Factory pour créer une instance du jeu (Variante "base" par défaut)
-        // C'est ici qu'on respecte le pattern Factory demandé par le sujet[cite: 43].
+        // creation du jeu via la factory avec la variante de base
         ControleurJeu jeu = JeuFactory.creerJeu("base");
 
-        // 2. On lance la boucle principale du jeu
+        // lancement de la partie
         jeu.lancerPartie();
     }
 }
