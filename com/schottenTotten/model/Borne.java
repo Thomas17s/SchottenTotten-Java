@@ -9,9 +9,9 @@ public class Borne {
     private List<Carte> coteJoueur2;
     private Joueur proprietaire;
     
-    // Nouveaux états pour les cartes Tactiques
-    private boolean modeColinMaillard; // Si vrai : on compte juste la somme
-    private boolean modeCombatBoue;    // Si vrai : il faut 4 cartes pour gagner
+    // etats lies aux cartes tactiques
+    private boolean modeColinMaillard; // si actif, seule la somme des cartes compte
+    private boolean modeCombatBoue;    // si actif, il faut 4 cartes au lieu de 3
 
     public Borne(int id) {
         this.id = id;
@@ -22,14 +22,14 @@ public class Borne {
         this.modeCombatBoue = false;
     }
 
-    // --- Méthodes modifiées ---
+    // methodes modifiees
 
-    // La capacité dépend maintenant du mode Combat de Boue (3 ou 4)
+    // capacite de la borne selon la regle active
     public int getCapaciteMax() {
         return modeCombatBoue ? 4 : 3;
     }
 
-    // Vérifie si la borne est pleine selon la règle active
+    // indique si la borne est complete pour les deux joueurs
     public boolean estPleine() {
         return coteJoueur1.size() == getCapaciteMax() && coteJoueur2.size() == getCapaciteMax();
     }
@@ -45,7 +45,7 @@ public class Borne {
         return false;
     }
 
-    // --- Getters et Setters pour les modes ---
+    // gestion des modes tactiques
 
     public void activerColinMaillard() {
         this.modeColinMaillard = true;
