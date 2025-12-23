@@ -18,12 +18,12 @@ public class CarteTactique extends Carte {
 
     @Override
     public Couleur getCouleur() {
-        return null; // Pas de couleur par défaut
+        return null; // pas de couleur associee
     }
 
     @Override
     public int getValeur() {
-        return 10; // Valeur fictive pour le tri
+        return 10; // valeur utilisee uniquement pour le tri
     }
 
     @Override
