@@ -12,20 +12,20 @@ import java.util.Random;
 
 public class ControleurJeu {
     private List<Borne> bornes;
-    private List<Carte> piocheClan;     // Ancienne pioche
-    private List<Carte> piocheTactique; // Nouvelle pioche
+    private List<Carte> piocheClan;     // ancienne pioche
+    private List<Carte> piocheTactique; // nouvelle pioche
     private Joueur j1;
     private Joueur j2;
     private VueConsole vue;
     private StrategieIA strategieIA;
     private boolean modeTactique;
-    private boolean modeExpert; // NOUVEAU : Active la variante revendication début de tour
+    private boolean modeExpert; // active la variante revendication debut de tour
     private Random random; 
 
     public ControleurJeu() {
         this.vue = new VueConsole();
         this.bornes = new ArrayList<>();
-        // Création des 9 bornes
+        // creation des 9 bornes
         for (int i = 0; i < 9; i++) {
             bornes.add(new Borne(i));
         }
@@ -33,7 +33,7 @@ public class ControleurJeu {
         this.random = new Random();
     }
 
-    // Crée et mélange le paquet de 54 cartes (6 couleurs et 9 valeurs).
+    // cree et melange le paquet de 54 cartes (6 couleurs et 9 valeurs)
     private List<Carte> creerPiocheClan() {
         List<Carte> nouvellePioche = new ArrayList<>();
         for (Couleur c : Couleur.values()) {
@@ -45,7 +45,7 @@ public class ControleurJeu {
         return nouvellePioche;
     }
 
-    // Crée le paquet de cartes tactiques
+    // cree le paquet de cartes tactiques
     private List<Carte> creerPiocheTactique() {
         List<Carte> nouvellePioche = new ArrayList<>();
         for (TypeTactique t : TypeTactique.values()) {
@@ -55,15 +55,15 @@ public class ControleurJeu {
         return nouvellePioche;
     }
 
-    // Méthode principale qui lance la boucle de jeu.
+    // methode principale qui lance la boucle de jeu
     public void lancerPartie() {
         vue.afficherMessage("Bienvenue dans Schotten-Totten !");
 
-        // Choix du mode de jeu
+        // choix du mode de jeu
         int choixMode = vue.demanderEntier("Mode de jeu :\n1. Classique (6 cartes)\n2. Tactique (7 cartes, cartes spéciales)\nVotre choix", 1, 2);
         this.modeTactique = (choixMode == 2);
         
-        // Choix de la variante Expert
+        // choix de la variante expert
         int choixExpert = vue.demanderEntier("Variante Experts (Revendication au début du tour) ?\n1. Oui\n2. Non", 1, 2);
         this.modeExpert = (choixExpert == 1);
 
@@ -72,7 +72,7 @@ public class ControleurJeu {
         int typeAdv = vue.demanderEntier("1. vs IA\n2. vs Humain \nChoix", 1, 2);
         j2 = new Joueur(typeAdv == 1 ? "Ordinateur" : "Joueur 2", typeAdv == 1);
 
-        // Initialisation des pioches
+        // initialisation des pioches
         this.piocheClan = creerPiocheClan();
         if (modeTactique) {
             this.piocheTactique = creerPiocheTactique();
@@ -80,7 +80,7 @@ public class ControleurJeu {
             this.piocheTactique = new ArrayList<>();
         }
 
-        // Main de départ
+        // main de depart
         int tailleMain = modeTactique ? 7 : 6;
         for (int i = 0; i < tailleMain; i++) {
             j1.piocherCarte(tirerCarteClan());
@@ -90,27 +90,27 @@ public class ControleurJeu {
         boolean enCours = true;
         Joueur joueurCourant = j1;
 
-        // Boucle de jeu
+        // boucle de jeu
         while (enCours) {
             vue.afficherPlateau(bornes, j1, j2);
 
-            // --- VARIANTE EXPERT : Revendication au DEBUT du tour ---
+            // variante expert : revendication au debut du tour
             if (modeExpert) {
                 if (!joueurCourant.estIA()) vue.afficherMessage("Début du tour : Vérification des revendications...");
                 boolean changement = verifierRevendications(joueurCourant);
-                if (changement) vue.afficherPlateau(bornes, j1, j2); // Réafficher si une borne a été prise
+                if (changement) vue.afficherPlateau(bornes, j1, j2); // reafficher si une borne a ete prise
                 
-                // Si on gagne au début du tour, on arrête tout de suite
+                // si on gagne au debut du tour on arrete tout de suite
                 if (verifierVictoire(joueurCourant)) {
                     vue.afficherMessage("VICTOIRE DE " + joueurCourant.getNom().toUpperCase() + " !!!");
                     break;
                 }
             }
 
-            // Le joueur joue son tour
+            // le joueur joue son tour
             jouerTour(joueurCourant);
 
-            // --- MODE NORMAL : Revendication à la FIN du tour ---
+            // mode normal : revendication a la fin du tour
             if (!modeExpert) {
                 verifierRevendications(joueurCourant);
                 if (verifierVictoire(joueurCourant)) {
@@ -121,13 +121,13 @@ public class ControleurJeu {
                 }
             }
 
-            // Cas match nul (plus de cartes)
+            // cas match nul (plus de cartes)
             if (piocheClan.isEmpty() && piocheTactique.isEmpty() && j1.getMain().isEmpty() && j2.getMain().isEmpty()) {
                 vue.afficherMessage("Plus de cartes ! Match nul.");
                 enCours = false;
             }
 
-            // Changement de joueur
+            // changement de joueur
             joueurCourant = (joueurCourant == j1) ? j2 : j1;
         }
     }
@@ -149,17 +149,17 @@ public class ControleurJeu {
             int idxBorne = -1;
 
             if (p.estIA()) {
-                // Stratégie IA (Corrigée pour éviter le crash Index -1)
+                // strategie ordinateur (corrigee pour eviter le crash index -1)
                 int essais = 0;
                 do {
                     int[] action = strategieIA.jouerTour(p, bornes);
                     idxCarte = action[0];
                     idxBorne = action[1];
                     essais++;
-                    // CORRECTION : On continue si l'index est -1 OU si le coup est invalide
+                    // on continue si l index est -1 ou si le coup est invalide
                 } while ((idxCarte == -1 || !estCoupValideIA(p, idxCarte, idxBorne)) && essais < 200);
 
-                // SECURITE : Si après 200 essais l'IA n'a rien trouvé, on force le premier coup valide
+                // securite : si apres 200 essais l ordinateur n a rien trouve on force le premier coup valide
                 if (idxCarte == -1 || !estCoupValideIA(p, idxCarte, idxBorne)) {
                     boolean sauve = false;
                     for (int c = 0; c < p.getMain().size(); c++) {
@@ -175,21 +175,21 @@ public class ControleurJeu {
                     }
                     if (!sauve) {
                         vue.afficherMessage("L'IA ne peut plus jouer et passe son tour (Bug ou Blocage total).");
-                        return; // Evite le crash
+                        return; // evite le crash
                     }
                 }
             } else {
-                // Joueur Humain
+                // joueur humain
                 vue.afficherMain(p);
                 idxCarte = vue.demanderEntier("Carte à jouer (index)", 0, p.getMain().size() - 1);
             }
 
-            // Récupération de la carte choisie
+            // recuperation de la carte choisie
             Carte carteChoisie = p.getMain().get(idxCarte);
             
-            // --- GESTION DES TYPES DE CARTES ---
+            // gestion des types de cartes
             
-            // 1. Si c'est une RUSE (Action spéciale)
+            // 1. si c est une ruse (action speciale)
             if (carteChoisie.estTactique() && ((CarteTactique)carteChoisie).getType().getCategorie() == TypeTactique.Categorie.RUSE) {
                 tourFini = appliquerRuse(p, (CarteTactique) carteChoisie);
                 if (tourFini) {
@@ -197,7 +197,7 @@ public class ControleurJeu {
                      if(p.estIA()) vue.afficherMessage("L'IA a joué une Ruse : " + carteChoisie);
                 }
             }
-            // 2. Si c'est un MODE DE COMBAT
+            // 2. si c est un mode de combat
             else if (carteChoisie.estTactique() && ((CarteTactique)carteChoisie).getType().getCategorie() == TypeTactique.Categorie.MODE_COMBAT) {
                 if (p.estIA()) {
                     List<Integer> bornesDispo = new ArrayList<>();
@@ -218,7 +218,7 @@ public class ControleurJeu {
                     tourFini = true;
                 }
             }
-            // 3. Sinon (Clan ou Troupe d'Elite)
+            // 3. sinon (clan ou troupe d elite)
             else {
                 if (!p.estIA()) idxBorne = vue.demanderEntier("Sur quelle borne poser la carte ?", 1, 9) - 1;
                 
@@ -402,12 +402,12 @@ public class ControleurJeu {
         }
     }
     
-    // Modification pour autoriser l'IA à jouer Ruse et Combat
+    // modification pour autoriser l ordinateur a jouer ruse et combat
     private boolean estCoupValideIA(Joueur p, int idxCarte, int idxBorne) {
         if (idxCarte < 0 || idxCarte >= p.getMain().size()) return false;
         Carte c = p.getMain().get(idxCarte);
         
-        // Si c'est une RUSE ou un MODE COMBAT, le coup est valide (géré par appliquerRuse)
+        // si c est une ruse ou un mode combat le coup est valide (gere par appliquerruse)
         if (c.estTactique()) {
             TypeTactique.Categorie cat = ((CarteTactique)c).getType().getCategorie();
             if (cat == TypeTactique.Categorie.RUSE || cat == TypeTactique.Categorie.MODE_COMBAT) return true;
@@ -422,7 +422,7 @@ public class ControleurJeu {
         Carte nouvelleCarte = null;
         if (modeTactique && !piocheTactique.isEmpty() && !piocheClan.isEmpty()) {
             if (p.estIA()) {
-                // IA : 50% de chance de piocher Tactique pour tester
+                // ordinateur : 50% de chance de piocher tactique pour tester
                 if (random.nextDouble() > 0.5) nouvelleCarte = tirerCarteTactique();
                 else nouvelleCarte = tirerCarteClan();
             } else {
@@ -448,7 +448,7 @@ public class ControleurJeu {
         return cote.size() < b.getCapaciteMax(); 
     }
 
-    // Modification : prend le joueurCourant en paramètre pour gérer la règle Expert
+    // modification : prend le joueurcourant en parametre pour gerer la regle expert
     private boolean verifierRevendications(Joueur joueurCourant) {
         boolean changement = false;
         for (Borne b : bornes) {
@@ -461,7 +461,7 @@ public class ControleurJeu {
                 else if (score2 > score1) gagnantPotentiel = j2;
 
                 if (gagnantPotentiel != null) {
-                    // EN MODE EXPERT : On ne revendique que si c'est NOTRE tour
+                    // en mode expert : on ne revendique que si c est notre tour
                     if (modeExpert) {
                         if (gagnantPotentiel == joueurCourant) {
                             b.setProprietaire(gagnantPotentiel);
@@ -469,14 +469,14 @@ public class ControleurJeu {
                             changement = true;
                         }
                     } 
-                    // EN MODE NORMAL : On revendique dès que c'est possible
+                    // en mode normal : on revendique des que c est possible
                     else {
                         b.setProprietaire(gagnantPotentiel);
                         vue.afficherMessage("Borne " + (b.getId() + 1) + " gagnée par " + gagnantPotentiel.getNom());
                         changement = true;
                     }
                 } else {
-                    // Egalité : personne ne prend la borne
+                    // egalite : personne ne prend la borne
                 }
             }
         }
